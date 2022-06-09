@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html>
+  
+<head> 
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+ <title>editApp</title>
+
+  <style> 
+    
+    body {
+      background-color: #E0E0E0;
+      width: 450px;
+      height: 2400px;
+      margin: 0px; 
+      padding: 0px;
+    } 
+    
+    .div1 {
+      font-size: 40px;
+      font-weight: bold;
+      color: #009900;
+      margin-top: 10px;
+      margin-left: 20px;
+    } 
+    
+    .p1 {
+      color: #000000;
+      font-size: 20px;
+      margin-left: 20px;
+    } 
+    
+    .button1 { 
+      font-size: 16px; 
+      margin-left: 20px;
+    }
+    
+    .p2 {
+      color: #0000AA;
+      font-size: 20px; 
+      margin-left: 20px;
+    } 
+    
+    
+    .p3 {
+      color: #0000AA;
+      font-size: 20px; 
+      margin-left: 20px;
+    } 
+    
+    .p4 {
+      color: #AA0000;
+      font-size: 10px;
+      margin-top: 10px;
+      margin-left: 20px;
+    }
+
+  </style>
+
+</head>
+ 
+
+<body>
+
+  <div class="div1">editApp- SFAS-BSNL</div>
+ 
+  <p class="p1"> 
+   Get Geolocation Latitude and Longitude <br>
+   Accuracy depends on device <br>
+   Recommended device - Apple's iPhone
+  </p> 
+ 
+  <button class="button1" onclick="getlocation()">
+    Coordinates
+  </button>
+  <button class="button1" onclick="newpos()">
+    New
+  </button> 
+  <button class="button1" onclick="read()">
+    Read
+  </button>
+  <button class="button1" onclick="save()">
+    Save
+  </button> 
+  <button class="button1" onclick="remove()">
+    Delete
+  </button> 
+  
+  <p class="p2" id="demo2"></p>
+  <p class="p3" id="demo3"> 
+    <input type="text" class="input" id="franchise" placeholder="Franchise Name and Code"> <br>
+    <input type="text" class="input" id="fos" placeholder="FOS Name and Code"> <br>
+    <br>
+    <input type="text" class="input" id="ctopno" placeholder="CTOPUP No."> <br>
+    <input type="text" class="input" id="altno" placeholder="Alternate No."> <br>
+    <input type="text" class="input" id="emailid" placeholder="Email ID"> <br>
+    <input type="text" class="input" id="retname" placeholder="Retailer Name"> <br>
+    <input type="text" class="input" id="retgend" placeholder="Gender"> <br>
+    <input type="text" class="input" id="shopname" placeholder="Shop Name"> <br>
+    <br>
+    <input type="text" class="input" id="shopno" placeholder="Shop No."> <br>
+    <input type="text" class="input" id="street" placeholder="Street/Village"> <br>
+    <input type="text" class="input" id="landmark" placeholder="Landmark/PO"> <br>
+    <input type="text" class="input" id="locality" placeholder="Locality/Tehsil"> <br>
+    <input type="text" class="input" id="city" placeholder="City/District"> <br>
+    <input type="text" class="input" id="state" placeholder="State/UT"> <br>
+    <input type="text" class="input" id="pincode" placeholder="PIN Code"> <br>
+    <br> 
+    <input type="text" class="input" id="activation" placeholder=" Avg. Activation PM"> <br>
+    <input type="text" class="input" id="mnp" placeholder="Avg. MNP PM "> <br>
+    <input type="text" class="input" id="recharge" placeholder="Avg. Recharge PM"> <br>
+    <br> 
+    <input type="text" class="input" id="visitedby" placeholder="Visited By"> 
+    <input type="button" class="input" id="preview" value="Preview" onclick="preview()"> 
+  </p>
+  <p class="p4" id="demo4"></p> 
+  
+  <script type = "text/javascript"> 
+         
+         //prefixes of implementation that we want to test
+         window.indexedDB = window.indexedDB || window.mozIndexedDB || 
+         window.webkitIndexedDB || window.msIndexedDB;
+         
+         //prefixes of window.IDB objects
+         window.IDBTransaction = window.IDBTransaction || 
+         window.webkitIDBTransaction || window.msIDBTransaction;
+         window.IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange || 
+         window.msIDBKeyRange; 
+         
+         if (!window.indexedDB) {
+            window.alert("Your browser doesn't support a stable version of IndexedDB."); 
+         }  // else { alert('Ok'); }
+         var db; 
+         var objectStore; 
+         var request = window.indexedDB.open("posbsnldb", 1); 
+         request.onerror = function(event) {
+            alert("error: ");
+         }; 
+         request.onsuccess = function(event) {
+            db = request.result;
+            // alert("success: "+ db);
+         }; 
+         request.onupgradeneeded = function(event) {
+            var db = event.target.result;
+            var objectStore = db.createObjectStore("posbsnl", {keyPath: "ctopno"}); 
+         } 
+    
+  </script>
+ 
+  <script> 
+    
+    var latitude = 0; 
+    var longitude= 0 ; 
+    var franchise; 
+    var fos; 
+    var ctopno; 
+    var altno; 
+    var emailid; 
+    var retname; 
+    var retgend; 
+    var shopname; 
+    var shopno; 
+    var street; 
+    var landmark;
+    var locality;
+    var city; 
+    var state; 
+    var pincode; 
+    var activation; 
+    var mnp; 
+    var recharge; 
+    var visitedby; 
+    
+    var previewready = true; 
+    var cordsreadready = true; 
+    var saveready = false; 
+    var readready = true; 
+    var removeready = false; 
+
+    var variable2 = document.getElementById("demo2"); 
+    var variable3 = document.getElementById("demo3"); 
+    var variable4 = document.getElementById("demo4"); 
+    
+    function getlocation() {
+      navigator.geolocation.getCurrentPosition(showLoc, errHand);
+    }
+
+    function showLoc(pos) { 
+     if (cordsreadready) {
+      variable2.innerHTML =
+        "Latitude  : "; 
+        "<br>" + 
+        "Longitude : "; 
+      variable2.innerHTML = 
+        "Latitude  : " +
+        pos.coords.latitude +
+        "<br>" + 
+        "Longitude : " +
+        pos.coords.longitude; 
+      latitude = pos.coords.latitude ;
+      longitude = pos.coords.longitude ; 
+     } else {} 
+    }
+ 
+    function errHand(err) {
+      
+      switch (err.code) {
+          
+        case err.PERMISSION_DENIED:
+          variable1.innerHTML =
+            "The application doesn't have the" +
+            "permission to make use of location services";
+          break;
+
+        case err.POSITION_UNAVAILABLE:
+          variable1.innerHTML = "The location of the device is uncertain";
+          break;
+
+        case err.TIMEOUT:
+          variable1.innerHTML = "The request to get user location timed out";
+
+          break;
+
+        case err.UNKNOWN_ERROR:
+          variable1.innerHTML =
+            "Time to fetch location information exceeded" +
+            "the maximum timeout interval";
+          break;
+
+      }
+
+    } 
+    
+    function newpos() {
+      // window.location.replace("https://surbot-1.github.io/geolocation4/"); 
+      window.location.reload();
+    }
+    
+    function preview() { 
+        previewready = false; 
+        cordsreadready = true; 
+        saveready = true; 
+        readready = false; 
+        removeready = false; 
+      // latitude; 
+      // longitude;
+      franchise = document.getElementById("franchise").value; 
+      fos = document.getElementById("fos").value; 
+      ctopno = document.getElementById("ctopno").value; 
+      altno = document.getElementById("altno").value; 
+      emailid = document.getElementById("emailid").value; 
+      retname = document.getElementById("retname").value; 
+      retgend = document.getElementById("retgend").value; 
+      shopname = document.getElementById("shopname").value; 
+      shopno = document.getElementById("shopno").value; 
+      street = document.getElementById("street").value; 
+      landmark = document.getElementById("landmark").value;
+      locality = document.getElementById("locality").value;
+      city = document.getElementById("city").value; 
+      state = document.getElementById("state").value; 
+      pincode = document.getElementById("pincode").value; 
+      activation = document.getElementById("activation").value; 
+      mnp = document.getElementById("mnp").value; 
+      recharge = document.getElementById("recharge").value; 
+      visitedby = document.getElementById("visitedby").value; 
+      
+      variable3.innerHTML ="";
+      variable3.innerHTML =
+        "Franchise       : " + franchise + "<br>" +
+        "FOS             : " + fos + "<br>" + 
+        "<br>" +
+        "CTOPUP No       : " + ctopno + "<br>" +
+        "Alternate No    : " + altno + "<br>" +
+        "Email ID        : " + emailid + "<br>" +
+        "Retailer Name   : " + retname + "<br>" +
+        "Gender          : " + retgend + "<br>" +
+        "Shop Name       : " + shopname + "<br>" + 
+        "<br>" +
+        "Shop No         : " + shopno + "<br>" +
+        "Street/Village  : " + street + "<br>" +
+        "Landmark/PO     : " + landmark + "<br>" +
+        "Locality/Tehsil : " + locality + "<br>" +
+        "City/District   : " + city + "<br>" +
+        "State/UT        : " + state + "<br>" +
+        "PIN Code        : " + pincode + "<br>" +
+        "<br>" +
+        "Avg. Activation PM : " + activation + "<br>" +
+        "Avg. MNP PM        : " + mnp + "<br>" +
+        "Avg. Recharge PM   : " + recharge + "<br>" +
+        "<br>" +
+        "Visited By : " + visitedby ;
+    } 
+    
+    function save() { 
+      if (saveready) { 
+        previewready = false; 
+        cordsreadready = false; 
+        saveready = false; 
+        readready = false; 
+        removeready = true; 
+        var request = db.transaction(["posbsnl"], "readwrite")
+       .objectStore("posbsnl")
+       .add({ 
+           latitude: latitude, 
+           longitude: longitude, 
+           franchise: franchise, 
+           fos: fos, 
+           ctopno: ctopno, 
+           altno: altno, 
+           emailid: emailid, 
+           retname: retname,
+           retgend: retgend,
+           shopname: shopname, 
+           shopno: shopno, 
+           street: street, 
+           landmark: landmark, 
+           locality: locality, 
+           city: city, 
+           state: state, 
+           pincode: pincode, 
+           activation: activation, 
+           mnp: mnp, 
+           recharge: recharge, 
+           visitedby: visitedby
+       }); 
+       request.onsuccess = function(event) { 
+                 variable2.innerHTML ="";
+                 variable2.innerHTML =
+                 "Latitude  : " + latitude + "<br>" +
+                 "Longitude : " + longitude ;  
+                 variable3.innerHTML ="";
+                 variable3.innerHTML =
+                 "Franchise       : " + franchise + "<br>" +
+                 "FOS             : " + fos + "<br>" + 
+                 "<br>" +
+                 "CTOPUP No       : " + ctopno + "<br>" +
+                 "Alternate No    : " + altno + "<br>" +
+                 "Email ID        : " + emailid + "<br>" +
+                 "Retailer Name   : " + retname + "<br>" +
+                 "Gender          : " + retgend + "<br>" +
+                 "Shop Name       : " + shopname + "<br>" + 
+                 "<br>" +
+                 "Shop No         : " + shopno + "<br>" +
+                 "Street/Village  : " + street + "<br>" +
+                 "Landmark/PO     : " + landmark + "<br>" +
+                 "Locality/Tehsil : " + locality + "<br>" +
+                 "City/District   : " + city + "<br>" +
+                 "State/UT        : " + state + "<br>" +
+                 "PIN Code        : " + pincode + "<br>" +
+                 "<br>" +
+                 "Avg. Activation PM : " + activation + "<br>" +
+                 "Avg. MNP PM        : " + mnp + "<br>" +
+                 "Avg. Recharge PM   : " + recharge + "<br>" +
+                 "<br>" +
+                 "Visited By : " + visitedby ;
+         alert(ctopno + " " + "saved successfully"); 
+       };  
+       request.onerror = function(event) {
+          alert(ctopno + " " + "already exist");
+       }; 
+      } else {} 
+    }
+    
+    function read() { 
+      if (readready) { 
+        previewready = false; 
+        cordsreadready = false; 
+        saveready = false; 
+        readready = false; 
+        removeready = true; 
+       // var toread = ctopno; 
+       var toread = document.getElementById("ctopno").value;
+       var transaction = db.transaction(["posbsnl"]);
+       var objectStore = transaction.objectStore("posbsnl");
+       var request = objectStore.get(toread); 
+       request.onsuccess = function(event) {
+               // Do something with the request.result!
+               if(request.result) { 
+                  latitude = request.result.latitude; 
+                  longitude = request.result.longitude; 
+                  franchise = request.result.franchise; 
+                  fos = request.result.fos; 
+                  ctopno = request.result.ctopno;  
+                  altno = request.result.altno;  
+                  emailid = request.result.emailid; 
+                  retname = request.result.retname;  
+                  retgend = request.result.retgend;  
+                  shopname = request.result.shopname; 
+                  shopno = request.result.shopno; 
+                  street = request.result.street;  
+                  landmark = request.result.landmark;  
+                  locality = request.result.locality; 
+                  city = request.result.city;  
+                  state = request.result.state;  
+                  pincode = request.result.pincode;  
+                  activation = request.result.activation;  
+                  mnp = request.result.mnp;  
+                  recharge = request.result.recharge;  
+                  visitedby = request.result.visitedby; 
+                  variable2.innerHTML ="";
+                  variable2.innerHTML =
+                 "Latitude  : " + latitude + "<br>" +
+                 "Longitude : " + longitude ;  
+                 variable3.innerHTML ="";
+                 variable3.innerHTML =
+                 "Franchise       : " + franchise + "<br>" +
+                 "FOS             : " + fos + "<br>" + 
+                 "<br>" +
+                 "CTOPUP No       : " + ctopno + "<br>" +
+                 "Alternate No    : " + altno + "<br>" +
+                 "Email ID        : " + emailid + "<br>" +
+                 "Retailer Name   : " + retname + "<br>" +
+                 "Gender          : " + retgend + "<br>" +
+                 "Shop Name       : " + shopname + "<br>" + 
+                 "<br>" +
+                 "Shop No         : " + shopno + "<br>" +
+                 "Street/Village  : " + street + "<br>" +
+                 "Landmark/PO     : " + landmark + "<br>" +
+                 "Locality/Tehsil : " + locality + "<br>" +
+                 "City/District   : " + city + "<br>" +
+                 "State/UT        : " + state + "<br>" +
+                 "PIN Code        : " + pincode + "<br>" +
+                 "<br>" +
+                 "Avg. Activation PM : " + activation + "<br>" +
+                 "Avg. MNP PM        : " + mnp + "<br>" +
+                 "Avg. Recharge PM   : " + recharge + "<br>" +
+                 "<br>" +
+                 "Visited By : " + visitedby ;
+                 
+               } else {
+                  alert(toread + " " + "couldn't be found!");
+               }
+            }; 
+      request.onerror = function(event) {
+               alert("Unable to retrieve!");
+            }; 
+      } else {} 
+    }
+    
+    function remove() { 
+      if (removeready) { 
+        previewready = false; 
+        cordsreadready = false; 
+        saveready = true; 
+        readready = false; 
+        removeready = false; 
+            var toremove = ctopno; 
+            // var toremove = document.getElementById("ctopno").value;
+            var request = db.transaction(["posbsnl"], "readwrite")
+            .objectStore("posbsnl")
+            .delete(toremove);
+            
+            request.onsuccess = function(event) { 
+                 variable2.innerHTML ="";
+                 variable2.innerHTML =
+                 "Latitude  : " + " " + "<br>" +
+                 "Longitude : " + " " ;  
+                 variable3.innerHTML ="";
+                 variable3.innerHTML =
+                 "Franchise       : " + " " + "<br>" +
+                 "FOS             : " + " " + "<br>" + 
+                 "<br>" +
+                 "CTOPUP No       : " + " " + "<br>" +
+                 "Alternate No    : " + " " + "<br>" +
+                 "Email ID        : " + " " + "<br>" +
+                 "Retailer Name   : " + " " + "<br>" +
+                 "Gender          : " + " " + "<br>" +
+                 "Shop Name       : " + " " + "<br>" + 
+                 "<br>" +
+                 "Shop No         : " + " " + "<br>" +
+                 "Street/Village  : " + " " + "<br>" +
+                 "Landmark/PO     : " + " " + "<br>" +
+                 "Locality/Tehsil : " + " " + "<br>" +
+                 "City/District   : " + " " + "<br>" +
+                 "State/UT        : " + " " + "<br>" +
+                 "PIN Code        : " + " " + "<br>" +
+                 "<br>" +
+                 "Avg. Activation PM : " + " " + "<br>" +
+                 "Avg. MNP PM        : " + " " + "<br>" +
+                 "Avg. Recharge PM   : " + " " + "<br>" +
+                 "<br>" + 
+                 "Visited By : " + " " ;
+               alert(toremove + " " + "has been removed successfully");
+            }; 
+            request.onerror = function(event) {
+               alert("Unable to remove!"); 
+            }; 
+      } else {}
+    }
+    
+    variable2.innerHTML =
+        "Latitude  : " +
+        "<br>" + 
+        "Longitude : "; 
+    variable4.innerHTML = 
+        "We respect our client's privacy" + 
+        "<br>We do not store or share client's information"; 
+
+  </script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
